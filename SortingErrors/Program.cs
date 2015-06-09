@@ -2,12 +2,40 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SortingErrors
 {
     class Program
     {
         static void Main(string[] args)
+        {
+            CalculateAverageTime();
+            //SortErrors();
+        }
+
+        private static void CalculateAverageTime()
+        {
+            var text = File.ReadAllText(@"C:\tmp\time.txt");
+            var matches = new Regex(@"time='(?<time>\d+(\.\d+)?)' ms", RegexOptions.Compiled | RegexOptions.ExplicitCapture).Matches(text);
+            var time = 0.0;
+            var count = 0;
+            foreach (Match match in matches)
+            {
+                double elapsed;
+                var str = match.Groups["time"].Value;
+                if (double.TryParse(str, out elapsed))
+                {
+                    count++;
+                    time += elapsed;
+                }
+            }
+            Console.WriteLine("Total time:{0} ms", time);
+            Console.WriteLine("Average time:{0} ms", time / count);
+            Console.ReadLine();
+        }
+
+        private static void SortErrors()
         {
             try
             {
@@ -52,7 +80,7 @@ namespace SortingErrors
                     {
                         Directory.CreateDirectory(directoryPath);
                     }
-                    foreach (var tuple in group)
+                    foreach (var tuple in @group)
                     {
                         var text = tuple.Item2;
                         text += "\n\n\n<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>\n\n\n";
